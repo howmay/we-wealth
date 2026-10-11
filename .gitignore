@@ -28,3 +28,6 @@ dist-ssr
 
 # Wrangler
 .wrangler
+
+# Generated locally from pinned OCR packages before dev/build/test
+public/ocr/

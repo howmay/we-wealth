@@ -123,7 +123,7 @@ function Privacy() {
             <strong>你輸入的資產資料</strong>：帳戶名稱、類型、國家、各幣別餘額、持有標的代號與數量、匯率、每日資產快照、歷史數量與持倉期間、修改紀錄，以及負債名稱、金額、幣別、利率與還款排程。用途：計算與呈現你的資產統計。
           </li>
         </ul>
-        <p>本服務不蒐集你的銀行帳號、密碼、身分證字號、交易憑證或任何金融機構的登入資訊。</p>
+        <p>匯入信用卡帳單時，你選擇的 PDF 與解密密碼只在瀏覽器記憶體中處理，不上傳、不保存原始檔或密碼。匯豐圖片商家欄使用本機 OCR；辨識圖片只留在記憶體，英文／繁中語言包由本站提供，無第三方辨識服務。預覽文字可能包含帳單上的個人資訊，離開匯入頁面後不保存。確認後僅將交易日期、商家／說明、金額、幣別、自訂銀行／卡片名稱，以及用於防止重複匯入的雜湊識別碼加入資料檔；在本機模式儲存在此瀏覽器，Google 模式則在你儲存變更後存入自己的 Drive。本服務不要求金融機構登入密碼、完整卡號或身分證字號。</p>
       </Section>
 
       <Section title="四、資料如何使用">
@@ -275,7 +275,7 @@ function PrivacyEnglish() {
   return (
     <section className="legal-en" lang="en" id="english">
       <h2>Wealthline Privacy Policy (English)</h2>
-      <p className="muted small">Effective date: October 8, 2026 · Last updated: October 10, 2026 · App: Wealthline · Website: {SITE_URL} · Operator: {OPERATOR} ({OPERATOR_URL})</p>
+      <p className="muted small">Effective date: October 8, 2026 · Last updated: October 11, 2026 · App: Wealthline · Website: {SITE_URL} · Operator: {OPERATOR} ({OPERATOR_URL})</p>
       <p>
         This privacy policy explains how <strong>Wealthline</strong> (<a href={SITE_URL}>{SITE_HOST}</a>), a free, open-source personal asset tracking web app,
         accesses, uses, stores, shares and deletes Google user data. Wealthline lets you record bank balances, stocks, funds and crypto holdings and shows your
@@ -295,6 +295,7 @@ function PrivacyEnglish() {
         <li>a short-lived <strong>OAuth access token</strong> (about one hour) used to call the Google Drive API on your behalf.</li>
       </ul>
       <p>Wealthline does not access Gmail, Contacts, Calendar or any other file in your Google Drive.</p>
+      <p>When you import a credit card statement, the selected PDF and its decryption password are processed only in browser memory. The original file and password are never uploaded or stored. HSBC image merchant columns use local OCR. Cropped images stay in memory; English and Traditional Chinese models are served by this site without a third-party recognition service. Preview text may contain personal information printed on the statement and is discarded when you leave the import page. Only confirmed transaction dates, descriptions, amounts, currencies, your bank/card label and hashed identifiers for duplicate detection are added to your data file. Saving keeps these records in this browser in local mode, or in your own Google Drive in Google mode. Bank login credentials, full card numbers and government identifiers are not required.</p>
 
       <h3>2. How we use Google user data</h3>
       <p>Google user data is used only to provide the features you see in the app:</p>

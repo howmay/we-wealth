@@ -18,7 +18,7 @@ export const AUTHOR_URL = 'https://github.com/zhChenOuO'
 
 // Bump when the privacy policy changes in a way that affects Google user data;
 // signed-in users then see a notice in the app (PrivacyNotice in views/Site.tsx).
-export const PRIVACY_UPDATED = '2026-10-10'
+export const PRIVACY_UPDATED = '2026-10-11'
 
 export const PAGES = {
   privacy: {

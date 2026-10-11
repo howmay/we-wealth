@@ -102,6 +102,23 @@ test('HTML responses prevent framing and restrict script execution', async () =>
   assert.equal(response.headers.get('X-Content-Type-Options'), 'nosniff')
 })
 
+test('only OCR JavaScript assets may compile WebAssembly', async () => {
+  for (const [path, contentType, allowed] of [
+    ['/ocr/7.0.0/worker.min.js', 'text/javascript; charset=utf-8', true],
+    ['/ocr/7.0.0/core/tesseract-core-lstm.wasm.js', 'application/javascript', true],
+    ['/ocr/missing', 'text/html', false],
+    ['/assets/pdf.worker.min.mjs', 'application/javascript', false],
+    ['/expenses', 'text/html', false],
+  ]) {
+    const response = await worker.fetch(new Request(`https://example.com${path}`), {
+      ASSETS: { fetch: async () => new Response('', { headers: { 'Content-Type': contentType } }) },
+    })
+    const csp = response.headers.get('Content-Security-Policy') ?? ''
+    assert.equal(csp.includes("'wasm-unsafe-eval'"), allowed, path)
+    assert.ok(!csp.includes("'unsafe-eval'"), path)
+  }
+})
+
 test('the CSP allows exactly the inline scripts in index.html', async () => {
   const response = await worker.fetch(new Request('https://example.com/'), {
     ASSETS: { fetch: async () => new Response('<html></html>', { headers: { 'Content-Type': 'text/html' } }) },

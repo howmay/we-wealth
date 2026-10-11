@@ -105,7 +105,7 @@ test('v4 protects schedule and audit fields; old formats still load; asynchronou
   assert.equal(model.parseWealthData({...base,version:1}).version,1)
   assert.equal(model.parseWealthData(base).version,2)
   assert.equal(model.parseWealthData({...base,version:3}).version,3)
-  assert.throws(()=>model.parseWealthData({...base,version:10}),/不支援的版本/)
+  assert.throws(()=>model.parseWealthData({...base,version:11}),/不支援的版本/)
   const current={...base,version:4,liabilities:[loan()]}
   const merged=saveState.finishSave(current,submitted,{...submitted,version:2})
   assert.equal(merged.version,4);assert.deepEqual(merged.liabilities,current.liabilities)

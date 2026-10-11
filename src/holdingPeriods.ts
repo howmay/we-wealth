@@ -108,7 +108,7 @@ export function applyHoldingPeriod(data: WealthData, period: HoldingPeriod, expe
   validatePeriodInput(period,now)
   if(periodConflicts(data,period).length && !confirmed) throw new Error('請先確認重疊期間與明確數量紀錄的差異')
   const holdingPeriods=parseHoldingPeriods([...(data.history.holdingPeriods ?? []),period])
-  const next:WealthData={...data,version:data.version===9?9:data.version===8?8:data.version===7?7:data.version===6?6:5,history:{...data.history,holdingPeriods}}
+  const next:WealthData={...data,version:data.version===10||data.expenses!==undefined?10:data.version===9?9:data.version===8?8:data.version===7?7:data.version===6?6:5,history:{...data.history,holdingPeriods}}
   expandPeriodDays(next,now) // bound work before accepting the edit
   return next
 }

@@ -2510,6 +2510,26 @@ button.timeline-arrow { display: grid; place-items: center; flex: 0 0 36px; widt
 .timeline-controls input[type="range"]:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 8px; }
 .timeline-endpoints { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; color: var(--muted); font-size: .7rem; font-variant-numeric: tabular-nums; }
 .timeline-controls .field { flex: 0 1 13rem; min-width: 0; }
+
+.expenses-page { display: grid; gap: 20px; }
+.expense-table { min-width: 650px; }
+.expense-table td { overflow-wrap: anywhere; max-width: 320px; }
+.expense-table td:first-child, .expense-table .num { white-space: nowrap; }
+.expense-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 16px; border: 0; padding: 0; margin: 0 0 20px; min-width: 0; }
+.expense-fields .field { min-width: 0; margin: 0; }
+.expense-fields input { width: 100%; box-sizing: border-box; min-width: 0; }
+.expense-preview { display: grid; gap: 12px; }
+.expense-draft { border: 1px solid var(--hairline); border-radius: 10px; padding: 16px; min-width: 0; }
+.expense-draft .expense-fields { grid-template-columns: 150px minmax(180px, 1fr) 130px 80px; margin: 12px 0 0; }
+.expense-draft .expense-card { grid-column: 1 / -1; }
+.statement-import > ul { overflow-wrap: anywhere; }
+.expense-select { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.statement-import details { margin-top: 16px; overflow-wrap: anywhere; }
+.statement-import > p { margin: 12px 0; }
+@media (max-width: 700px) {
+  .expense-fields, .expense-draft .expense-fields { grid-template-columns: minmax(0, 1fr); }
+  .statement-import .panel-head { flex-wrap: wrap; }
+}
 .timeline-controls select { width: 100%; }
 .snapshot-accounts { list-style: none; padding: 0; margin: 0; }
 .snapshot-accounts li > span { min-width: 0; overflow-wrap: anywhere; }

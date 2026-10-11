@@ -201,7 +201,7 @@ export function applyQuantityDay(data: WealthData, day: QuantityDay, expected?: 
   const existing = data.history.quantityDays?.find(d => d.date === day.date)
   if (existing !== expected) throw new Error('這一天已新增或變更，請取消並重新開啟，避免覆蓋其他修改')
   const parsed = parseQuantityDays([day])[0]
-  return { ...data, version: data.version === 9 || parsed.completion ? 9 : data.version === 8 || parsed.inventory ? 8 : data.version === 7 || parsed.entries.some(e=>e.fx?.source==='derived') ? 7 : data.version === 6 || day.sparse ? 6 : data.version === 5 || data.history.holdingPeriods !== undefined ? 5 : data.version === 4 || data.liabilities?.some(d => d.schedule || d.basisHistory) ? 4 : 3, history: { ...data.history, quantityDays: [...(data.history.quantityDays ?? []).filter(d => d.date !== day.date), parsed].sort((a,b) => a.date.localeCompare(b.date)) } }
+  return { ...data, version: data.version === 10 || data.expenses !== undefined ? 10 : data.version === 9 || parsed.completion ? 9 : data.version === 8 || parsed.inventory ? 8 : data.version === 7 || parsed.entries.some(e=>e.fx?.source==='derived') ? 7 : data.version === 6 || day.sparse ? 6 : data.version === 5 || data.history.holdingPeriods !== undefined ? 5 : data.version === 4 || data.liabilities?.some(d => d.schedule || d.basisHistory) ? 4 : 3, history: { ...data.history, quantityDays: [...(data.history.quantityDays ?? []).filter(d => d.date !== day.date), parsed].sort((a,b) => a.date.localeCompare(b.date)) } }
 }
 export function parseQuantityDays(raw: unknown): QuantityDay[] {
   if (!Array.isArray(raw)) throw new Error('歷史數量必須是陣列')

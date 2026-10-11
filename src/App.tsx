@@ -20,6 +20,7 @@ import { applyQuotes, fetchHoldingQuotes } from './quotes'
 import { fetchRates } from './rates'
 import { Accounts, type AccountsView } from './views/Accounts'
 import { Liabilities } from './views/Liabilities'
+import { Expenses } from './views/Expenses'
 import { Overview } from './views/Overview'
 import { HistoryView } from './views/History'
 import { Rates } from './views/Rates'
@@ -381,7 +382,7 @@ export default function App() {
   function update(next: WealthData) {
     editVersion.current++
     dirtyRef.current = true
-    setData({ ...next, version: next.version === 9 ? 9 : next.version === 8 ? 8 : next.version === 7 ? 7 : next.version === 6 ? 6 : next.version === 5 || next.history.holdingPeriods !== undefined ? 5 : next.version === 4 || next.liabilities?.some(d => d.schedule || d.basisHistory) ? 4 : next.version === 3 || next.history.quantityDays !== undefined ? 3 : 2, liabilities: next.liabilities ?? [] })
+    setData({ ...next, version: next.version === 10 || next.expenses !== undefined ? 10 : next.version === 9 ? 9 : next.version === 8 ? 8 : next.version === 7 ? 7 : next.version === 6 ? 6 : next.version === 5 || next.history.holdingPeriods !== undefined ? 5 : next.version === 4 || next.liabilities?.some(d => d.schedule || d.basisHistory) ? 4 : next.version === 3 || next.history.quantityDays !== undefined ? 3 : 2, liabilities: next.liabilities ?? [] })
     setDirty(true)
   }
 
@@ -558,6 +559,7 @@ export default function App() {
           />
         )}
         {data && tab === 'liabilities' && <Liabilities data={data} onChange={update} />}
+        {data && tab === 'expenses' && <Expenses data={data} onChange={update} busy={busy} />}
         {data && tab === 'rates' && <Rates data={data} onChange={update} onRefresh={async () => void (await refreshRates(data))} error={ratesError} />}
       </main>
       <SiteFooter />

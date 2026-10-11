@@ -2,6 +2,7 @@
 
 import { parseLiability, type Liability } from './liabilities'
 import { emptyHistory, parseHistory, type History } from './history'
+import { parseExpense, type Expense } from './expenses'
 
 export const BASE_CURRENCY = 'TWD'
 
@@ -72,7 +73,7 @@ export interface Account {
 }
 
 export interface WealthData {
-  version: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
+  version: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10
   updatedAt: string
   // How many TWD one unit of each currency is worth.
   fxRates: Record<string, number>
@@ -82,6 +83,7 @@ export interface WealthData {
   fxUpdatedAt?: string
   accounts: Account[]
   liabilities?: Liability[]
+  expenses?: Expense[]
   // Past edits and daily values; see history.ts.
   history: History
 }
@@ -168,7 +170,7 @@ export function parseWealthData(raw: unknown, source: keyof typeof SOURCES = 'dr
     throw new Error(`${SOURCES[source][0]}格式不正確：${why}。${SOURCES[source][1]}`)
   }
   const obj = (typeof raw === 'object' && raw !== null ? raw : fail('不是 JSON 物件')) as Record<string, unknown>
-  if (obj.version !== 1 && obj.version !== 2 && obj.version !== 3 && obj.version !== 4 && obj.version !== 5 && obj.version !== 6 && obj.version !== 7 && obj.version !== 8 && obj.version !== 9) fail(`不支援的版本 ${String(obj.version)}`)
+  if (obj.version !== 1 && obj.version !== 2 && obj.version !== 3 && obj.version !== 4 && obj.version !== 5 && obj.version !== 6 && obj.version !== 7 && obj.version !== 8 && obj.version !== 9 && obj.version !== 10) fail(`不支援的版本 ${String(obj.version)}`)
   if (!Array.isArray(obj.accounts)) fail('缺少 accounts 陣列')
 
   const str = (v: unknown, fallback = '') => (typeof v === 'string' ? v.trim() : fallback)
@@ -222,14 +224,20 @@ export function parseWealthData(raw: unknown, source: keyof typeof SOURCES = 'dr
   })
   if (liabilities && new Set(liabilities.map((d) => d.id)).size !== liabilities.length) fail('負債識別碼重複')
   const fxManual = Array.isArray(obj.fxManual) ? obj.fxManual.filter((c): c is string => typeof c === 'string') : []
+  if ((obj.version === 10 || obj.expenses !== undefined) && !Array.isArray(obj.expenses)) fail('消費明細必須是陣列')
+  const expenses = obj.expenses === undefined ? undefined : (obj.expenses as unknown[]).map(e => {
+    try { return parseExpense(e) } catch(e) {return fail(e instanceof Error ? e.message : '消費明細無效')}
+  })
+  if(expenses && new Set(expenses.map(e=>e.id)).size !== expenses.length) fail('消費識別碼重複')
   return {
-    version: obj.version as 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9,
+    version: expenses !== undefined ? 10 : obj.version as WealthData['version'],
     updatedAt: str(obj.updatedAt) || new Date().toISOString(),
     fxRates,
     fxManual,
     fxUpdatedAt: str(obj.fxUpdatedAt) || undefined,
     accounts,
     liabilities,
+    ...(expenses !== undefined && {expenses}),
     history: parseHistory(obj.history, fail),
   }
 }

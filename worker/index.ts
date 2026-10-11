@@ -32,10 +32,11 @@ export default {
       if (!isIndexable(url.pathname)) response.headers.set('X-Robots-Tag', 'noindex')
     }
     if (isApiPath(url.pathname)) response.headers.set('X-Robots-Tag', 'noindex')
+    const ocrScript = url.pathname.startsWith('/ocr/') && /(?:application|text)\/(?:javascript|ecmascript)/.test(response.headers.get('Content-Type') ?? '')
     response.headers.set('Content-Security-Policy', [
       "default-src 'self'",
       // The hash is index.html's inline restore script (tests/security.test.mjs keeps them in sync).
-      "script-src 'self' 'sha256-y9ZP2XkknaC8PB9I+/GCdUGofPK4Iz8oAARSz8989ek=' https://accounts.google.com/gsi/client",
+      `script-src 'self' 'sha256-y9ZP2XkknaC8PB9I+/GCdUGofPK4Iz8oAARSz8989ek=' https://accounts.google.com/gsi/client${ocrScript ? " 'wasm-unsafe-eval'" : ''}`,
       "style-src 'self' 'unsafe-inline' https://accounts.google.com/gsi/style",
       "connect-src 'self' https://accounts.google.com/gsi/ https://www.googleapis.com https://oauth2.googleapis.com https://open.er-api.com https://api.coingecko.com",
       "frame-src https://accounts.google.com/gsi/",

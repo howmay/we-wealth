@@ -19,6 +19,7 @@ test('each signed-in page has its own URL that parses back to the same page', ()
     [{ tab: 'accounts', page: 'detail', id: 'a b/c' }, '/accounts/a%20b%2Fc'],
     [{ tab: 'accounts', page: 'edit', id: 'abc' }, '/accounts/abc/edit'],
     [{ tab: 'liabilities' }, '/liabilities'],
+    [{ tab: 'expenses' }, '/expenses'],
     [{ tab: 'rates' }, '/rates'],
     [{ tab: 'history' }, '/history'],
     [{ tab: 'history', date: '2026-09-01' }, '/history/2026-09-01'],

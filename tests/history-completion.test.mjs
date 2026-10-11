@@ -65,7 +65,7 @@ test('confirm zero fills, fixed coverage, old v8 scope and removal leave origina
  assert.equal(day.completion,undefined);assert.deepEqual(day.inventory,before);assert.equal(save(old,day).version,8)
  next.history.snapshots=[{date,at:now,total:123,accounts:[],categories:{}}]
  assert.match(c.removalMessage(next,date),/恢復原始快照/);assert.equal(next.history.snapshots.length,1)
- assert.match(c.removalMessage(fixture(),new Date().toISOString().slice(0,10)),/恢復目前持倉/)
+ assert.match(c.removalMessage(fixture(),h.localDate(new Date().toISOString())),/恢復目前持倉/)
  assert.match(c.removalMessage(fixture(),date),/會從每日列表消失/)
 })
 test('v9 survives parsing, recordSave and asynchronous saves; malformed supplements reject',()=>{

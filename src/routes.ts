@@ -3,7 +3,7 @@ import { validDate } from './quantityHistory'
 // The signed-in app's pages and their URLs, so browser back/forward and the mobile back swipe
 // move between them. Cloudflare serves index.html for these paths (wrangler.jsonc).
 
-export const TABS = { overview: '總覽', accounts: '帳戶', liabilities: '負債', history: '歷史明細', rates: '匯率' }
+export const TABS = { overview: '總覽', accounts: '帳戶', liabilities: '負債', expenses: '消費明細', history: '歷史明細', rates: '匯率' }
 export type Tab = keyof typeof TABS
 
 export type Route =
@@ -13,6 +13,7 @@ export type Route =
   | { tab: 'accounts'; page: 'edit'; id: string }
   | { tab: 'accounts'; page: 'detail'; id: string }
   | { tab: 'liabilities' }
+  | { tab: 'expenses' }
   | { tab: 'history'; date?: string }
   | { tab: 'rates' }
 
@@ -21,6 +22,7 @@ export const tabPath = (t: Tab) => (t === 'overview' ? '/app' : `/${t}`)
 export function parseRoute(path: string): Route {
   const [first, second, third, ...rest] = path.split('/').filter(Boolean).map(decodeURIComponent)
   if (first === 'liabilities' && !second) return { tab: 'liabilities' }
+  if (first === 'expenses' && !second) return { tab: 'expenses' }
   if (first === 'history' && !third && !rest.length) {
     if (!second) return { tab: 'history' }
     if (validDate(second)) return { tab: 'history', date: second }
@@ -43,6 +45,7 @@ export function routePath(r: Route): string {
     case 'history':
       return r.date ? `/history/${r.date}` : '/history'
     case 'liabilities':
+    case 'expenses':
     case 'rates':
       return `/${r.tab}`
     case 'accounts':
