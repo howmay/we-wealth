@@ -25,6 +25,10 @@ export function parseExpense(raw: unknown): Expense {
 }
 
 const normalized = (s: string) => s.normalize('NFKC').trim().replace(/\s+/g,' ').toUpperCase()
+export function isUnrecognizedMerchant(description:string):boolean {
+  const value=normalized(description)
+  return value.startsWith('商家未能辨識') || /^[I|丨]+$/.test(value.replace(/\s/g,''))
+}
 const signature = (e: StatementRow & {card:string}) => JSON.stringify([normalized(e.card),e.date,normalized(e.description),e.currency,e.amount])
 export async function sha256(bytes: Uint8Array): Promise<string> {
   return Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', new Uint8Array(bytes))), b => b.toString(16).padStart(2,'0')).join('')
@@ -45,6 +49,7 @@ export async function prepareExpenses(rows: StatementRow[], card: string, fileHa
 // Count matching occurrences rather than collapsing two genuine identical purchases.
 export function mergeExpenses(existing: Expense[], incoming: Expense[], statementRows: Expense[] = incoming): {expenses:Expense[]; added:number; duplicates:number} {
   const rows = incoming.map(parseExpense)
+  if(rows.some(e=>isUnrecognizedMerchant(e.description))) throw new Error('請補上可辨識的商家，並核對是否為繳款')
   const sourceKeys = new Set(existing.flatMap(e => e.sourceKey ? [e.sourceKey] : []))
   const importKeys = new Set(existing.flatMap(e => e.importKey ? [e.importKey] : []))
   const contextSources = new Set(statementRows.flatMap(e=>e.sourceKey?[e.sourceKey]:[]))
