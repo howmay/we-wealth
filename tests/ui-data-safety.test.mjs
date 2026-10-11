@@ -1458,6 +1458,21 @@ test('expense edits use existing save flow and preserve assets; cancelled import
   assert.equal(localStorage.getItem('synthetic-secret'),null)
 })
 
+test('legacy unknown merchants remain readable but cannot be saved unchanged',async()=>{
+  const description='商家未能辨識（請對照帳單填寫；可能包含繳款）'
+  const data={...fixture(),version:10,expenses:[{id:'unknown',date:'2026-09-01',description,amount:100,currency:'TWD',card:'HSBC'}]}
+  window.history.replaceState(null,'','/expenses')
+  const drive=setupDrive(data)
+  await render(App)
+  await click(button(`編輯消費 2026-09-01 ${description}`))
+  await act(async()=>document.querySelector('form').dispatchEvent(new Event('submit',{bubbles:true,cancelable:true})))
+  assert.match(document.querySelector('[role="alert"]').textContent,/可辨識的商家/)
+  assert.equal(drive.writes,0)
+  await setInput(document.querySelector('input[maxlength="500"]'),'Corrected shop')
+  await act(async()=>document.querySelector('form').dispatchEvent(new Event('submit',{bubbles:true,cancelable:true})))
+  assert.match(document.querySelector('table').textContent,/Corrected shop/)
+})
+
 test('statement privacy disclosure notifies users who saw the previous policy',async()=>{
   localStorage.setItem('wealthline.privacySeen','2026-10-10')
   setupDrive(fixture())

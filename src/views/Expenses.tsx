@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
-import { mergeExpenses, parseExpense, prepareExpenses, sha256, type Expense } from '../expenses'
+import { mergeExpenses, isUnrecognizedMerchant, parseExpense, prepareExpenses, sha256, type Expense } from '../expenses'
 import { assertCreditCardFile, parseStatement, statementMetadata } from '../statements'
 import { fmt } from '../format'
 import type { WealthData } from '../model'
@@ -35,7 +35,7 @@ function ExpenseEditor({expense,busy,onSave,onCancel}: {expense:Expense;busy:boo
   const [draft,setDraft] = useState(expense)
   const [amount,setAmount] = useState(String(expense.amount))
   const [error,setError] = useState('')
-  return <form className="panel form" onSubmit={e=>{e.preventDefault();try {if(!amount.trim()) throw new Error('請填寫金額');onSave(parseExpense({...draft,amount:Number(amount)}))} catch(e){setError(e instanceof Error?e.message:'資料無效')}}}>
+  return <form className="panel form" onSubmit={e=>{e.preventDefault();try {if(isUnrecognizedMerchant(draft.description)) throw new Error('請補上可辨識的商家，並核對是否為繳款');if(!amount.trim()) throw new Error('請填寫金額');onSave(parseExpense({...draft,amount:Number(amount)}))} catch(e){setError(e instanceof Error?e.message:'資料無效')}}}>
     <h2>編輯消費明細</h2>
     <fieldset disabled={busy} className="expense-fields">
       <label className="field"><span>消費日期</span><input type="date" required value={draft.date} onChange={e=>setDraft({...draft,date:e.target.value})}/></label>
@@ -73,7 +73,6 @@ function StatementImport({existing,busy,onCancel,onImport}: {existing:Expense[];
   let validation = ''
   try {
     result = mergeExpenses(existing,selected.map(r=>{
-      if(r.needsReview && r.description.includes('商家未能辨識')) throw new Error('請先補上未辨識的商家，並核對是否為繳款')
       if(!r.amountText.trim()) throw new Error('請填寫每筆金額')
       return {...r,amount:Number(r.amountText)}
     }),drafts ?? [])
@@ -158,7 +157,7 @@ function StatementImport({existing,busy,onCancel,onImport}: {existing:Expense[];
         </fieldset>
       })}</div>
       <button disabled={busy} onClick={()=>setDrafts(rows=>[...(rows??[]),{id:crypto.randomUUID(),date:`${month || reports.find(r=>r.month)?.month || new Date().toISOString().slice(0,7)}-01`,description:'',amount:0,amountText:'',currency,card:card || reports.find(r=>r.bank)?.bank || '',selected:true}])}>＋ 補上一筆交易</button>
-      {!!skipped.length && <details className="notice"><summary>未匯入的文字列（{skipped.length}）：含總計、繳款與無法辨識內容</summary><p className="small">只在本次預覽顯示，離開後不保存。請核對是否有漏掉的交易。</p><ul>{skipped.map((line,i)=><li key={i}>{line}</li>)}</ul></details>}
+      {!!skipped.length && <details className="notice"><summary>未匯入的文字列（{skipped.length}）：含總計、繳款與無法辨識內容</summary><p className="small">只在本次預覽顯示，離開後不保存。未辨識商家及單獨的 I／分隔線不列為消費。請核對是否有漏掉的交易，確認後可用「補上一筆交易」手動補登。</p><ul>{skipped.map((line,i)=><li key={i}>{line}</li>)}</ul></details>}
       {validation && <p role="alert" className="banner error">{validation}</p>}
       <p role="status">選取 {selected.length} 筆 · 可新增 {result?.added ?? 0} 筆 · 略過重複 {result?.duplicates ?? 0} 筆</p>
       <button className="primary" disabled={busy || !!validation || !result?.added} onClick={()=>{try{onImport(selected.map(r=>({...r,amount:Number(r.amountText)})),drafts)}catch(e){setError(e instanceof Error?e.message:'匯入失敗')}}}>確認匯入 {result?.added ?? 0} 筆</button>

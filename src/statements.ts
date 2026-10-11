@@ -1,5 +1,5 @@
 import { validDate } from './quantityHistory'
-import type { StatementRow } from './expenses'
+import { isUnrecognizedMerchant, type StatementRow } from './expenses'
 
 interface TextItem { str:string; transform:number[];width?:number;height?:number }
 export function textRows(items: unknown[]) {
@@ -50,7 +50,7 @@ export function hsbcSgPage(items:unknown[]) {
 export function hsbcMerchantRegions(items:unknown[]) {
   return textRows(items).flatMap((row,index)=>{
     const line=row.items.map(i=>i.str).join(' ').replace(/\s+/g,' ').trim()
-    if(!parseStatement([line],'2000-12','TWD','HSBC').review.length) return []
+    if(parseStatement([line],'2000-12','TWD','HSBC').rows.length || nonSpending.test(line)) return []
     const dates=row.items.filter(i=>/^\d{1,2}[/.-]\d{1,2}$/.test(i.str))
     if(dates.length < 2) return []
     const left=dates[1].x+dates[1].width+4
@@ -87,7 +87,7 @@ export function ocrMerchantLine(line:string, description:string, confidence:numb
   const merchant=description.normalize('NFKC').replace(/\s+/g,' ').trim()
   const dates=line.match(/^(\d{1,2}[/.-]\d{1,2}\s+\d{1,2}[/.-]\d{1,2})\s+/)?.[1]
   const amount=line.match(/(?:^|\s)(\(?[+-]?\d[\d,]*(?:\.\d{1,2})?\)?(?:\s*(?:CR|DR))?)$/i)?.[1]
-  if(!dates || !amount || confidence < 65 || !Number.isFinite(confidence) || !/[\p{L}]/u.test(merchant) || merchant.length > 500) return line
+  if(isUnrecognizedMerchant(merchant) || !dates || !amount || confidence < 65 || !Number.isFinite(confidence) || !/[\p{L}]/u.test(merchant) || merchant.length > 500) return line
   return `${dates} ${merchant} ${amount}`
 }
 
@@ -180,9 +180,8 @@ export function parseStatement(lines:string[], month:string, currency:string, fi
       description = description.split(/\s(?:TWD|NTD|USD|SGD|HKD|JPY|EUR)\s+[+-]?\d/i)[0].trim()
       description = description.replace(/\s\d{1,2}[/.-]\d{1,2}$/, '').trim()
     }
-    if(bank === 'hsbc' && (!description || !/[\p{L}]/u.test(description) || /^[A-Z]{3}$/i.test(description))) {
-      description = '商家未能辨識（請對照帳單填寫；可能包含繳款）'
-      review.push(rows.length)
+    if(isUnrecognizedMerchant(description) || (bank === 'hsbc' && (!description || !/[\p{L}]/u.test(description) || /^[A-Z]{3}$/i.test(description)))) {
+      skipped.push(original);continue
     }
     // shortcut: unknown bank layouts require a single unambiguous amount; add verified layouts when samples are available.
     if(!description || (!bank && /\s[+-]?\d[\d,.]*\s*$/.test(description))) {skipped.push(original);continue}
